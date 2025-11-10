@@ -126,8 +126,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="20261.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="ProyectoFinal\20261.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
