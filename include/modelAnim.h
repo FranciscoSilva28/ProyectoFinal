@@ -517,9 +517,7 @@ private:
 		aiMatrix4x4 identity_matrix; // = mat4(1.0f);
 
 		double time_in_ticks = time_in_sec * ticks_per_second;
-		float animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration); //������� �� ����� (������� �� ������)
-		// animation_time - ���� ������� ������ � ���� ������ �� ������ �������� (�� ������� �������� ����� � �������� )
-
+		float animation_time = fmod(time_in_ticks, scene->mAnimations[0]->mDuration); 
 		readNodeHierarchy(animation_time, scene->mRootNode, identity_matrix);
 
 		transforms.resize(m_num_bones);
