@@ -92,6 +92,43 @@ recorrido2 = false,
 recorrido3 = false,
 recorrido4 = false;
 
+// --- INICIA CÓDIGO PARA MÁQUINA DE ESTADOS DE LA ASPIRADORA ---
+// Enumeración de los estados
+enum VacuumState {
+	IDLE,       // 0: Quieta
+	MOVE_Z_POS, // 1: Avanza en +Z
+	TURN_RIGHT_1, // 2: Gira 90 grados
+	MOVE_X_POS, // 3: Avanza en +X
+	TURN_RIGHT_2, // 4: Gira 90 grados
+	MOVE_Z_NEG, // 5: Avanza en -Z
+	TURN_RIGHT_3, // 6: Gira 90 grados
+	MOVE_X_NEG, // 7: Avanza en -X
+	TURN_RIGHT_4  // 8: Gira 90 grados (para volver al inicio)
+};
+
+VacuumState vac_state = IDLE; // Estado actual
+bool start_vacuum = false;    // Para iniciar/detener con una tecla
+
+// Posición y orientación de la aspiradora
+float vac_x = 10.0f;
+float vac_z = 10.0f;
+float vac_angle = 0.0f; // Ángulo en grados (0 = mirando hacia +Z)
+
+// Parámetros del recorrido
+float vac_move_step = 0.1f;  // Unidades por frame
+float vac_turn_step = 1.0f;  // Grados por frame
+float rect_length = 20.0f; // Largo del rectángulo (en Z)
+float rect_width = 10.0f;  // Ancho del rectángulo (en X)
+
+// Variables para guardar los objetivos de cada estado
+float target_z = 0.0f;
+float target_x = 0.0f;
+float target_angle = 0.0f;
+
+// Posición inicial
+float start_vac_x = 10.0f;
+float start_vac_z = 10.0f;
+// --- TERMINA CÓDIGO PARA MÁQUINA DE ESTADOS DE LA ASPIRADORA ---
 
 //Keyframes (Manipulación y dibujo)
 float	posX = 0.0f,
@@ -99,6 +136,7 @@ float	posX = 0.0f,
 		posZ = 0.0f,
 		rotRodIzq = 0.0f,
 		giroMonito = 0.0f;
+
 float	incX = 0.0f,
 		incY = 0.0f,
 		incZ = 0.0f,
@@ -210,7 +248,97 @@ void LoadTextures()
 	t_white = generateTextures("Texturas/white.jpg", 0, false);
 }
 
+void animateVacuum()
+{
+	// La máquina de estados solo se ejecuta si la variable está activa
+	if (!start_vacuum) {
+		return;
+	}
 
+	switch (vac_state)
+	{
+	case IDLE:
+		// Estado inicial: configurar variables y pasar al primer movimiento
+		vac_x = start_vac_x;
+		vac_z = start_vac_z;
+		vac_angle = 0.0f;
+		target_z = start_vac_z + rect_length; // Calcula el primer objetivo
+		vac_state = MOVE_Z_POS;               // Cambia al siguiente estado
+		break;
+
+	case MOVE_Z_POS: // 1. Avanza en +Z
+		vac_z += vac_move_step;
+		if (vac_z >= target_z) {
+			vac_z = target_z;                 // Asegura la posición final
+			vac_state = TURN_RIGHT_1;         // Siguiente estado
+			target_angle = 90.0f;             // Objetivo para el giro
+		}
+		break;
+
+	case TURN_RIGHT_1: // 2. Gira 90 grados
+		vac_angle += vac_turn_step;
+		if (vac_angle >= target_angle) {
+			vac_angle = target_angle;
+			vac_state = MOVE_X_POS;
+			target_x = vac_x + rect_width;    // Objetivo para el avance
+		}
+		break;
+
+	case MOVE_X_POS: // 3. Avanza en +X
+		vac_x += vac_move_step;
+		if (vac_x >= target_x) {
+			vac_x = target_x;
+			vac_state = TURN_RIGHT_2;
+			target_angle = 180.0f;
+		}
+		break;
+
+	case TURN_RIGHT_2: // 4. Gira 180 grados
+		vac_angle += vac_turn_step;
+		if (vac_angle >= target_angle) {
+			vac_angle = target_angle;
+			vac_state = MOVE_Z_NEG;
+			target_z = vac_z - rect_length;
+		}
+		break;
+
+	case MOVE_Z_NEG: // 5. Avanza en -Z
+		vac_z -= vac_move_step;
+		if (vac_z <= target_z) {
+			vac_z = target_z;
+			vac_state = TURN_RIGHT_3;
+			target_angle = 270.0f;
+		}
+		break;
+
+	case TURN_RIGHT_3: // 6. Gira 270 grados
+		vac_angle += vac_turn_step;
+		if (vac_angle >= target_angle) {
+			vac_angle = target_angle;
+			vac_state = MOVE_X_NEG;
+			target_x = vac_x - rect_width;
+		}
+		break;
+
+	case MOVE_X_NEG: // 7. Avanza en -X
+		vac_x -= vac_move_step;
+		if (vac_x <= target_x) {
+			vac_x = target_x;
+			vac_state = TURN_RIGHT_4;
+			target_angle = 360.0f;
+		}
+		break;
+
+	case TURN_RIGHT_4: // 8. Gira 360 grados (vuelta al inicio)
+		vac_angle += vac_turn_step;
+		if (vac_angle >= 360.0f) {
+			vac_angle = 0.0f;                 // Reinicia el ángulo
+			vac_state = MOVE_Z_POS;           // Vuelve al primer movimiento (loop)
+			target_z = vac_z + rect_length;
+		}
+		break;
+	}
+}
 
 void animate(void) 
 {
@@ -252,6 +380,9 @@ void animate(void)
 	{
 		movAuto_x += 3.0f;
 	}
+
+	// Actualiza la lógica de la aspiradora en cada frame
+	animateVacuum();
 }
 
 void getResolution() {
@@ -450,16 +581,15 @@ int main() {
 
 	// load models
 	// -----------
+	
 	Model piso("resources/objects/piso/piso.obj");
-	Model carro("resources/objects/lambo/carroceria.obj");
-	Model llanta("resources/objects/lambo/Wheel.obj");
-	Model casaVieja("resources/objects/casa/OldHouse.obj");
-	//Model cubo("resources/objects/cubo/cube02.obj");
-	Model casaDoll("resources/objects/casa/DollHouse.obj");
+
+	//Modelo Aspiradora Xiaomi
+	//Model aspiradora("resources/objects/Vac_Xiaomi/Xiaomi/Xiaomi_Corona2012.obj");
+	Model aspiradora("resources/objects/Vac_Xiaomi/Xiaomi/Obj.obj");
 
 	ModelAnim animacionPersonaje("resources/objects/Personaje1/Arm.dae");
 	animacionPersonaje.initShaders(animShader.ID);
-
 
 	//Inicialización de KeyFrames
 	for (int i = 0; i < MAX_FRAMES; i++)
@@ -557,6 +687,18 @@ int main() {
 		myShader.setMat4("projection", projectionOp);
 		/**********/
 
+		// -------------------------------------------------------------------------------------------------------------------------
+		// Aspiradora 
+		// -------------------------------------------------------------------------------------------------------------------------
+		
+		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(vac_x, -1.0f, vac_z)); // Posición (uso Y=-1.0 como el carro)
+		modelOp = glm::rotate(modelOp, glm::radians(vac_angle), glm::vec3(0.0f, 1.0f, 0.0f)); // Orientación
+
+		// --- AJUSTAR ESTA LÍNEA PARA ESCALA --- 
+		modelOp = glm::scale(modelOp, glm::vec3(0.01f)); // <-- Probar valores con 0.01f o incluso 0.005f
+		// Probar un valor 10 o 100 veces más pequeño.
+		staticShader.setMat4("model", modelOp);
+		aspiradora.Draw(staticShader); 
 
 		// -------------------------------------------------------------------------------------------------------------------------
 		// Personaje Animacion
@@ -624,6 +766,8 @@ int main() {
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		*/
 		glBindVertexArray(0);
+
+
 		// ------------------------------------------------------------------------------------------------------------------------
 		// Termina Escenario Primitivas
 		// -------------------------------------------------------------------------------------------------------------------------
@@ -631,58 +775,19 @@ int main() {
 		// -------------------------------------------------------------------------------------------------------------------------
 		// Escenario
 		// -------------------------------------------------------------------------------------------------------------------------
-		staticShader.use();
-		staticShader.setMat4("projection", projectionOp);
-		staticShader.setMat4("view", viewOp);
-
-		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(250.0f, 0.0f, -10.0f));
-		modelOp = glm::rotate(modelOp, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", modelOp);
-		casaDoll.Draw(staticShader);
 
 		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.75f, 0.0f));
 		modelOp = glm::scale(modelOp, glm::vec3(0.2f));
 		staticShader.setMat4("model", modelOp);
 		//piso.Draw(staticShader);
-
-		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -70.0f));
-		modelOp = glm::scale(modelOp, glm::vec3(5.0f));
-		staticShader.setMat4("model", modelOp);
-		staticShader.setVec3("dirLight.specular", glm::vec3(0.0f, 0.0f, 0.0f));
-		casaVieja.Draw(staticShader);
-
+		
 		// -------------------------------------------------------------------------------------------------------------------------
 		// Carro
 		// -------------------------------------------------------------------------------------------------------------------------
 		//modelOp = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(movAuto_x, -1.0f, movAuto_z - 15.0f));
-		tmp = modelOp = glm::rotate(modelOp, glm::radians(orienta), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelOp = glm::scale(modelOp, glm::vec3(0.1f, 0.1f, 0.1f));
-		staticShader.setVec3("dirLight.specular", glm::vec3(0.6f, 0.6f, 0.6f));
-		staticShader.setMat4("model", modelOp);
-		carro.Draw(staticShader);
+		
 
-		modelOp = glm::translate(tmp, glm::vec3(8.5f, 2.5f, 12.9f));
-		modelOp = glm::scale(modelOp, glm::vec3(0.1f, 0.1f, 0.1f));
-		staticShader.setMat4("model", modelOp);
-		llanta.Draw(staticShader);	//Izq delantera
 
-		modelOp = glm::translate(tmp, glm::vec3(-8.5f, 2.5f, 12.9f));
-		modelOp = glm::scale(modelOp, glm::vec3(0.1f, 0.1f, 0.1f));
-		modelOp = glm::rotate(modelOp, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", modelOp);
-		llanta.Draw(staticShader);	//Der delantera
-
-		modelOp = glm::translate(tmp, glm::vec3(-8.5f, 2.5f, -14.5f));
-		modelOp = glm::scale(modelOp, glm::vec3(0.1f, 0.1f, 0.1f));
-		modelOp = glm::rotate(modelOp, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		staticShader.setMat4("model", modelOp);
-		llanta.Draw(staticShader);	//Der trasera
-
-		modelOp = glm::translate(tmp, glm::vec3(8.5f, 2.5f, -14.5f));
-		modelOp = glm::scale(modelOp, glm::vec3(0.1f, 0.1f, 0.1f));
-		staticShader.setMat4("model", modelOp);
-		llanta.Draw(staticShader);	//Izq trase
 		// -------------------------------------------------------------------------------------------------------------------------
 		// Personaje
 		// -------------------------------------------------------------------------------------------------------------------------
@@ -822,6 +927,17 @@ void my_input(GLFWwindow* window, int key, int scancode, int action, int mode)
 	//Car animation
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 		animacion ^= true;
+
+	// Xiaomi Aspiradora
+	// Iniciar/detener animación de la aspiradora
+	if (key == GLFW_KEY_K && action == GLFW_PRESS)
+	{
+		start_vacuum = !start_vacuum;
+		// Si se detiene, que regrese a IDLE para reiniciar el ciclo
+		if (!start_vacuum) {
+			vac_state = IDLE;
+		}
+	}
 
 	//To play KeyFrame animation 
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
