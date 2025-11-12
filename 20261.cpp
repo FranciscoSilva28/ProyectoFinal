@@ -2,7 +2,7 @@
 /* ----------------   PROYECTO FINAL  --------------------------*/
 /*-----------------    2026-1   ---------------------------*/
 /*------------- Alumnos: Arellanes Conde Esteban----------*/
-/*-------------			Cervantes Valencia Mar ́ıa Fernanda----*/
+/*-------------			Cervantes Valencia Mar ??a Fernanda----*/
 /*-------------			Silva Castro Francisco Javier*/
 /*-------------			Rufino López María Elena---------------*/
 /*------------- No. Cuenta                  ---------------*/
@@ -49,7 +49,7 @@ GLuint VBO[3], VAO[3], EBO[3];
 Camera camera(glm::vec3(40.0f, 10.0f, 3.0f));
 float MovementSpeed = 0.1f;
 GLfloat lastX = SCR_WIDTH / 2.0f,
-		lastY = SCR_HEIGHT / 2.0f;
+lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 //Timing
@@ -70,6 +70,7 @@ movZ = -5.0f,
 rotX = 0.0f;
 
 //Texture
+//Lineas Agregadas para Texturas Elena
 unsigned int
 t_obra1,
 t_obra2,
@@ -98,28 +99,31 @@ glm::vec3 lightColor = glm::vec3(0.7f);
 glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
 glm::vec3 ambientColor = diffuseColor * glm::vec3(0.75f);
 
-// posiciones
-float	movAuto_x = 0.0f,
-movAuto_z = 0.0f,
-orienta = 90.0f;
-bool	animacion = false,
-recorrido1 = true,
-recorrido2 = false,
-recorrido3 = false,
-recorrido4 = false;
+// Variables para el movimiento en zig-zag
+float movEscultura2_x = 50.0f;  // Posición inicial en X
+float movEscultura2_z = 50.0f;   // Posición inicial en Z
+int recorrido = 1;               // Controla el patrón de movimiento
+
+
+bool animacion = false; // Controla si la animación está activa o no
+
+// Variables para el modelo obra_Elena
+float rotOsoY = 0.0f;
+int stateOso = 0;
+bool animOso = false;
 
 
 //Keyframes (Manipulación y dibujo)
 float	posX = 0.0f,
-		posY = 0.0f,
-		posZ = 0.0f,
-		rotRodIzq = 0.0f,
-		giroMonito = 0.0f;
+posY = 0.0f,
+posZ = 0.0f,
+rotRodIzq = 0.0f,
+giroMonito = 0.0f;
 float	incX = 0.0f,
-		incY = 0.0f,
-		incZ = 0.0f,
-		rotRodIzqInc = 0.0f,
-		giroMonitoInc = 0.0f;
+incY = 0.0f,
+incZ = 0.0f,
+rotRodIzqInc = 0.0f,
+giroMonitoInc = 0.0f;
 
 #define MAX_FRAMES 9
 int i_max_steps = 60;
@@ -189,8 +193,8 @@ unsigned int generateTextures(const char* filename, bool alfa, bool isPrimitive)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
-	
-	if(isPrimitive)
+
+	if (isPrimitive)
 		stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
 	else
 		stbi_set_flip_vertically_on_load(false); // tell stb_image.h to flip loaded texture's on the y-axis.
@@ -216,7 +220,7 @@ unsigned int generateTextures(const char* filename, bool alfa, bool isPrimitive)
 }
 
 
-//texturas de cuadros
+//texturas de cuadros Elena
 void LoadTextures()
 {
 
@@ -240,8 +244,7 @@ void LoadTextures()
 }
 
 
-
-void animate(void) 
+void animate(void)
 {
 	if (play)
 	{
@@ -275,11 +278,54 @@ void animate(void)
 			i_curr_steps++;
 		}
 	}
+	//----- Animacion oso
+	if (animOso) //Elena
+	{
+		rotOsoY += 1.5f;          // rota sobre eje X
+		if (rotOsoY >= 360.0f)    // cuando completa la vuelta
+			rotOsoY = 0.0f;
+	}
+	else if (stateOso == 0)
+	{
+		rotOsoY = rotOsoY;
+	}
+	//recorrido en zig-zag
 
-	//Vehículo
+// Escultura2 Elena
 	if (animacion)
 	{
-		movAuto_x += 3.0f;
+		if (recorrido == 1)
+		{
+			movEscultura2_x += 1.0f;
+			movEscultura2_z += 1.5f;
+			if (movEscultura2_x >= 60.0f) {
+				recorrido = 2;
+			}
+		}
+		if (recorrido == 2)
+		{
+			movEscultura2_x -= 1.0f;
+			movEscultura2_z -= 1.5f;
+			if (movEscultura2_x <= 60.0f) {
+				recorrido = 3;
+			}
+		}
+		if (recorrido == 3)
+		{
+			movEscultura2_x += 3.0f;
+			movEscultura2_z += 4.5f;
+			if (movEscultura2_x >= 120.0f) {
+				recorrido = 4;
+			}
+		}
+		if (recorrido == 4)
+		{
+			movEscultura2_x -= 3.0f;
+			movEscultura2_z -= 4.5f;
+			if (movEscultura2_x <= 120.0f) {
+				recorrido = 1;
+			}
+		}
 	}
 }
 
@@ -412,8 +458,11 @@ void myData() {
 	glBindVertexArray(0);
 }
 
+// Definición de la estructura para los cuadros Elena
 struct Cuadro {
 	glm::vec3 posicion;
+	glm::vec3 escala;
+	float rotacionY;
 	unsigned int textura;
 };
 
@@ -458,26 +507,23 @@ int main() {
 	myData();
 	glEnable(GL_DEPTH_TEST);
 
-// --------------------------------------------------------------
-// Definición de los cuadros a mostrar en la escena
-// --------------------------------------------------------------
+	// Definición de los cuadros a mostrar en la escena Elena
 	Cuadro cuadros[] = {
-		{ glm::vec3(0.0f, 10.0f, 0.0f), t_obra1 },
-		{ glm::vec3(10.0f, 10.0f, 0.0f), t_obra2 },
-		{ glm::vec3(-10.0f, 10.0f, 0.0f), t_obra3 },
-		{ glm::vec3(20.f, 10.0f, 0.0f), t_obra4 },
-		{ glm::vec3(-20.f, 10.0f, 0.0f), t_obra5},
-		{glm::vec3(30.f, 10.0f, 0.0f), t_obra6},
-		{glm::vec3(-30.f, 10.0f, 0.0f), t_obra7},
-		{glm::vec3(40.f, 10.0f, 0.0f), t_obra8},
-		{glm::vec3(-40.f, 10.0f, 0.0f), t_obra9},
-		{glm::vec3(50.f, 10.0f, 0.0f), t_obra10},
-		{glm::vec3(-50.f, 10.0f, 0.0f), t_obra11},
-		{glm::vec3(60.f, 10.0f, 0.0f), t_obra12},
-		{glm::vec3(-60.f, 10.0f, 0.0f), t_obra13},
-		{glm::vec3(70.f, 10.0f, 0.0f), t_obra14},
-		{glm::vec3(-70.f, 10.0f, 0.0f), t_obra15}
-
+		{ glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(6.5f), 45.0f, t_obra1 },
+		{ glm::vec3(5.0f, 10.0f, 0.0f), glm::vec3(6.5f), 0.0f, t_obra2 },
+		{ glm::vec3(-5.0f, 10.0f, 0.0f), glm::vec3(4.5f), -30.0f ,t_obra3 },
+		{ glm::vec3(15.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra4 },
+		{ glm::vec3(-15.f, 10.0f, 0.0f), glm::vec3(8.5f), 0.0f, t_obra5},
+		{glm::vec3(25.f, 10.0f, 0.0f), glm::vec3(8.5f), 0.0f, t_obra6},
+		{glm::vec3(-25.f, 10.0f, 0.0f),  glm::vec3(1.5f),0.0f,  t_obra7},
+		{glm::vec3(35.f, 10.0f, 0.0f),  glm::vec3(1.5f), 0.0f, t_obra8},
+		{glm::vec3(-35.f, 10.0f, 0.0f),  glm::vec3(3.5f),0.0f,  t_obra9},
+		{glm::vec3(45.f, 10.0f, 0.0f),  glm::vec3(3.5f), 0.0f, t_obra10},
+		{glm::vec3(-45.f, 10.0f, 0.0f), glm::vec3(2.5f),0.0f,  t_obra11},
+		{glm::vec3(55.f, 10.0f, 0.0f),  glm::vec3(2.5f), 0.0f, t_obra12},
+		{glm::vec3(-55.f, 10.0f, 0.0f), glm::vec3(9.5f),0.0f,  t_obra13},
+		{glm::vec3(65.f, 10.0f, 0.0f), glm::vec3(9.5f), 0.0f, t_obra14},
+		{glm::vec3(-65.f, 10.0f, 0.0f),glm::vec3(1.5f),0.0f,  t_obra15}
 
 	};
 
@@ -488,7 +534,7 @@ int main() {
 	Shader staticShader("Shaders/shader_Lights.vs", "Shaders/shader_Lights_mod.fs");	//To use with static models
 	Shader skyboxShader("Shaders/skybox.vs", "Shaders/skybox.fs");	//To use with skybox
 	Shader animShader("Shaders/anim.vs", "Shaders/anim.fs");	//To use with animated models 
-	
+
 	vector<std::string> faces{
 		"resources/skybox/right.jpg",
 		"resources/skybox/left.jpg",
@@ -498,7 +544,7 @@ int main() {
 		"resources/skybox/back.jpg"
 	};
 
-	stbi_set_flip_vertically_on_load(false);
+	stbi_set_flip_vertically_on_load(false); //IMPORTANTE PARA NO VOLTEAR LAS TEXTURAS DEL SKYBOX FONDO Elena
 	Skybox skybox = Skybox(faces);
 
 	// Shader configuration
@@ -509,6 +555,12 @@ int main() {
 	// load models
 	// -----------
 	Model piso("resources/objects/piso/piso.obj");
+	Model escultura3_Elena("resources/objects/escultura3/oso.obj");
+	Model escultura1_Elena("resources/objects/escultura1/pajaro.obj");
+	Model base_Elena("resources/objects/base/base.obj");
+	ModelAnim escultura2_Elena("resources/objects/escultura2/escultura2.dae");
+	escultura2_Elena.initShaders(animShader.ID);
+
 	//Model cubo("resources/objects/cubo/cube02.obj");
 
 	//Inicialización de KeyFrames
@@ -608,24 +660,48 @@ int main() {
 		/**********/
 
 
-		//------------------------------------------------------------------------------------------------------------------------ -
-		// Cuadros con texturas
-		// -------------------------------------------------------------------------------------------------------------------------
-			myShader.use();
+		// Cuadros con texturas Elena
+		myShader.use();
 		glActiveTexture(GL_TEXTURE0);
 		myShader.setInt("texture1", 0);
 
 		glBindVertexArray(VAO[0]);
 
 		for (auto& c : cuadros) {
-			modelOp = glm::translate(glm::mat4(1.0f), c.posicion);
-			modelOp = glm::scale(modelOp, glm::vec3(5.0f, 5.0f, 1.0f));
+			modelOp = glm::mat4(1.0f);
+			modelOp = glm::translate(modelOp, c.posicion);
+			modelOp = glm::rotate(modelOp, glm::radians(c.rotacionY), glm::vec3(0.0f, 1.0f, 0.0f));
+			modelOp = glm::scale(modelOp, c.escala);
+
 			myShader.setMat4("model", modelOp);
 			myShader.setVec3("aColor", 1.0f, 1.0f, 1.0f);
 			glBindTexture(GL_TEXTURE_2D, c.textura);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 
+
+
+		// -------------------------------------------------------------------------------------------------------------------------
+		// Personaje Animacion
+		// -------------------------------------------------------------------------------------------------------------------------
+		//Remember to activate the shader with the animation
+		animShader.use();
+		animShader.setMat4("projection", projectionOp);
+		animShader.setMat4("view", viewOp);
+
+		animShader.setVec3("material.specular", glm::vec3(0.5f));
+		animShader.setFloat("material.shininess", 32.0f);
+		animShader.setVec3("light.ambient", ambientColor);
+		animShader.setVec3("light.diffuse", diffuseColor);
+		animShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		animShader.setVec3("light.direction", lightDirection);
+		animShader.setVec3("viewPos", camera.Position);
+
+		//Escultura2 Elena
+		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(movEscultura2_x, 0.0f, movEscultura2_z));
+		modelOp = glm::scale(modelOp, glm::vec3(0.1f)); // Escalado del modelo
+		animShader.setMat4("model", modelOp);
+		escultura2_Elena.Draw(animShader);
 
 		// -------------------------------------------------------------------------------------------------------------------------
 		// Escenario Primitivas
@@ -637,13 +713,13 @@ int main() {
 		//Colocar código aquí
 		modelOp = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 2.0f, 40.0f));
 		modelOp = glm::translate(modelOp, glm::vec3(0.0f, -1.0f, 0.0f));
-		modelOp = glm::rotate(modelOp, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelOp = glm::rotate(modelOp, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		myShader.setMat4("model", modelOp);
 		myShader.setVec3("aColor", 1.0f, 1.0f, 1.0f);
 		glBindTexture(GL_TEXTURE_2D, t_ladrillos);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-	
+
 
 		glBindVertexArray(0);
 
@@ -659,7 +735,47 @@ int main() {
 		staticShader.setMat4("model", modelOp);
 		//piso.Draw(staticShader);
 
-		
+
+		//-------------------------------------------------------------------------------------------------------------------------
+		// Personaje
+		// -------------------------------------------------------------------------------------------------------------------------
+
+		//Dibujar esculturas Elena
+		glm::mat4 tmpEsc;
+		glBindTexture(GL_TEXTURE_2D, 0);
+		staticShader.use();
+		staticShader.setVec3("material.diffuse", glm::vec3(0.55f, 0.55f, 0.55f));
+		staticShader.setVec3("material.specular", glm::vec3(0.1f, 0.1f, 0.1f));   // poco brillo
+		staticShader.setFloat("material.shininess", 32.0f);
+		modelOp = glm::mat4(1.0f);
+		modelOp = glm::translate(modelOp, glm::vec3(-30.0f, 0.0f, 50.0f));
+		modelOp = glm::scale(modelOp, glm::vec3(0.5f));
+		tmpEsc = modelOp;
+		staticShader.setMat4("model", tmpEsc);
+		base_Elena.Draw(staticShader);
+
+		modelOp = glm::translate(tmpEsc, glm::vec3(1.5f, 32.0f, 0.0f));
+		modelOp = glm::rotate(modelOp, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelOp = glm::scale(modelOp, glm::vec3(1.5f));
+		staticShader.setMat4("model", modelOp);
+		escultura1_Elena.Draw(staticShader);
+
+
+
+		//Escultura 3 OSO Elena
+		modelOp = glm::mat4(1.0f);
+		modelOp = glm::translate(glm::mat4(1.0f), glm::vec3(40.0f, 10.0f, 40.0f));
+		modelOp = glm::rotate(modelOp, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelOp = glm::translate(modelOp, glm::vec3(20.0f, 3.0f, -10.0f));
+		modelOp = glm::rotate(modelOp, glm::radians(rotOsoY), glm::vec3(0.0f, .0f, 1.0f)); // ROTACIÓN EN Y
+		staticShader.setMat4("model", modelOp);
+		escultura3_Elena.Draw(staticShader);
+		// -------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
 		//-------------------------------------------------------------------------------------
 		// draw skybox as last
 		// -------------------
@@ -678,7 +794,7 @@ int main() {
 			SDL_Delay((int)(LOOP_TIME - deltaTime));
 		}
 
-		
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
@@ -695,7 +811,7 @@ int main() {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void my_input(GLFWwindow* window, int key, int scancode, int action, int mode) 
+void my_input(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -721,9 +837,12 @@ void my_input(GLFWwindow* window, int key, int scancode, int action, int mode)
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
 		rotRodIzq--;
 	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
-		rotRodIzq++;
-	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
-		giroMonito--;
+	{
+		stateOso = 0; //Elena
+		animOso = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		animOso = true; //Elena
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
 		giroMonito++;
 	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
@@ -775,7 +894,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 // glfw: whenever the mouse moves, this callback is called
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) 
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
