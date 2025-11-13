@@ -1,0 +1,13 @@
+# 3ds Max Wavefront OBJ Exporter v0.99 - (c)2007 guruware
+# File Created: 11.11.2025 02:33:37
+
+newmtl 02___Default
+    Kd 0.55 0.55 0.55       # Color difuso gris medio
+    Ks 0.10 0.10 0.10       # Brillo bajo, para que no se vea metálico
+    Ka 0.20 0.20 0.20       # Componente ambiental (ligeramente más oscuro)
+    Ke 0.00 0.00 0.00       # Emisión (sin brillo propio)
+    Tr 0.0                  # Transparencia 0 (opaco)
+    d 1.0                   # Opacidad 100%
+    Ns 30.0                 # Suavizado de brillo (más bajo = menos reflectante)
+    Ni 1.5200               # Índice de refracción
+    illum 2                 # Modo de iluminación estándar

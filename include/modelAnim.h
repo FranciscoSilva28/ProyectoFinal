@@ -85,37 +85,99 @@ private:
 
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-    void loadModel(string const &path)
-    {
-        // read file via ASSIMP
-        scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-        // check for errors
-        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-        {
-            cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
-            return;
-        }
+	void loadModel(string const& path)
+	{
+		// read file via ASSIMP
+		scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+		// check for errors
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+		{
+			cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+			return;
+		}
 
 		m_global_inverse_transform = scene->mRootNode->mTransformation;
 		m_global_inverse_transform.Inverse();
 
-		if (scene->mAnimations[0]->mTicksPerSecond != 0.0)
+		// 102 // Chequea si existen animaciones antes de intentar acceder al array mAnimations
+		if (scene->mNumAnimations > 0)
 		{
-			ticks_per_second = scene->mAnimations[0]->mTicksPerSecond;
+			// Si hay animaciones, procede a intentar obtener mTicksPerSecond
+			if (scene->mAnimations[0]->mTicksPerSecond != 0.0)
+			{
+				ticks_per_second = scene->mAnimations[0]->mTicksPerSecond;
+			}
+			else
+			{
+				// En caso de que exista la animación, pero el valor de tics sea 0.0
+				ticks_per_second = 25.0f; // Valor por defecto
+			}
 		}
 		else
 		{
+			// Si no hay animaciones (mNumAnimations == 0), usa un valor por defecto.
+			// Esto es lo que ocurrirá con tu modelo del Museo Jumex.
 			ticks_per_second = 25.0f;
 		}
 
-        // retrieve the directory path of the filepath
-        directory = path.substr(0, path.find_last_of('/'));
+		// retrieve the directory path of the filepath
+		directory = path.substr(0, path.find_last_of('/'));
 
-		cout << "scene->HasAnimations() 1: " << scene->HasAnimations() << endl;
-		cout << "scene->mNumMeshes 1: " << scene->mNumMeshes << endl;
-		cout << "scene->mAnimations[0]->mNumChannels 1: " << scene->mAnimations[0]->mNumChannels << endl;
-		cout << "scene->mAnimations[0]->mDuration 1: " << scene->mAnimations[0]->mDuration << endl;
-		cout << "scene->mAnimations[0]->mTicksPerSecond 1: " << scene->mAnimations[0]->mTicksPerSecond << endl << endl;
+		// COMIENZO DEL BLOQUE DE CÓDIGO PROTEGIDO
+		// Solo se ejecuta si hay animaciones (mNumAnimations > 0)
+		// **INICIO DE LA VERIFICACIÓN DE ANIMACIONES**
+
+		if (scene->mNumAnimations > 0)
+		{
+			// Solo si el modelo TIENE animaciones (mNumAnimations > 0), ejecutamos esto:
+
+			// Tus COUT de animación:
+			cout << "scene->HasAnimations() 1: " << scene->HasAnimations() << endl;
+			cout << "scene->mNumMeshes 1: " << scene->mNumMeshes << endl;
+			cout << "scene->mAnimations[0]->mNumChannels 1: " << scene->mAnimations[0]->mNumChannels << endl;
+			cout << "scene->mAnimations[0]->mDuration 1: " << scene->mAnimations[0]->mDuration << endl;
+			cout << "scene->mAnimations[0]->mTicksPerSecond 1: " << scene->mAnimations[0]->mTicksPerSecond << endl << endl;
+
+			cout << "name nodes animation : " << endl;
+			// Tu bucle de canales (que también necesita mAnimations[0]):
+			for (uint i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
+			{
+				cout << scene->mAnimations[0]->mChannels[i]->mNodeName.C_Str() << endl;
+			}
+		}
+		else
+		{
+			// Si NO hay animaciones (Museo Jumex), solo imprimimos el mensaje seguro.
+			cout << "INFO: Modelo estático. No se encontraron animaciones." << endl;
+			cout << "scene->mNumMeshes 1: " << scene->mNumMeshes << endl;
+		}
+		/* Lo anterior suplantó lo siguente
+		if (scene->mNumAnimations > 0)
+		{
+			cout << "--- Animación Encontrada ---" << endl;
+			cout << "scene->HasAnimations() 1: " << scene->HasAnimations() << endl;
+			cout << "scene->mNumMeshes 1: " << scene->mNumMeshes << endl;
+
+			// ¡Estas líneas causaban el error! Ahora están protegidas.
+			cout << "scene->mAnimations[0]->mNumChannels 1: " << scene->mAnimations[0]->mNumChannels << endl;
+			cout << "scene->mAnimations[0]->mDuration 1: " << scene->mAnimations[0]->mDuration << endl;
+			cout << "scene->mAnimations[0]->mTicksPerSecond 1: " << scene->mAnimations[0]->mTicksPerSecond << endl << endl;
+
+			cout << "		name nodes animation : " << endl;
+			for (uint i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
+			{
+				cout << scene->mAnimations[0]->mChannels[i]->mNodeName.C_Str() << endl;
+			}
+			cout << endl;
+		}
+		else
+		{
+			cout << "--- Modelo Estático (Sin Animación) ---" << endl;
+			cout << "scene->mNumMeshes 1: " << scene->mNumMeshes << endl;
+		}
+		*/
+
+		// FIN DEL BLOQUE DE CÓDIGO PROTEGIDO
 
 		cout << "		name nodes : " << endl;
 		showNodeName(scene->mRootNode);
@@ -125,14 +187,7 @@ private:
 		//processNode(scene->mRootNode, scene);
 		// process ASSIMP's root node recursively
 		processNode(scene->mRootNode, scene);
-
-		cout << "		name nodes animation : " << endl;
-		for (uint i = 0; i < scene->mAnimations[0]->mNumChannels; i++)
-		{
-			cout << scene->mAnimations[0]->mChannels[i]->mNodeName.C_Str() << endl;
-		}
-		cout << endl;
-    }
+	}
 
 	void showNodeName(aiNode* node)
 	{
@@ -193,6 +248,8 @@ private:
             vector.y = mesh->mNormals[i].y;
             vector.z = mesh->mNormals[i].z;
             vertex.Normal = vector;
+
+
             // texture coordinates
             if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
             {
@@ -205,6 +262,35 @@ private:
             }
             else
                 vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+
+			// Código corregido (con verificación de seguridad):
+			// tangent y bitangent
+			// **VERIFICACIÓN CRÍTICA**: Comprueba si el modelo tiene tangentes (mTangents)
+			if (mesh->mTangents)
+			{
+				// Carga TANGENTES
+				vector.x = mesh->mTangents[i].x;
+				vector.y = mesh->mTangents[i].y;
+				vector.z = mesh->mTangents[i].z;
+				vertex.Tangent = vector;
+
+				// Carga BITANGENTES
+				vector.x = mesh->mBitangents[i].x;
+				vector.y = mesh->mBitangents[i].y;
+				vector.z = mesh->mBitangents[i].z;
+				vertex.Bitangent = vector;
+			}
+			else
+			{
+				// Si NO existen (como en el Jumex), asignamos un valor seguro (0, 0, 0).
+				vertex.Tangent = glm::vec3(0.0f);
+				vertex.Bitangent = glm::vec3(0.0f);
+			}
+
+			vertices.push_back(vertex); // Esta línea se queda aquí, DESPUÉS del if/else
+
+
+			/* Esto lo cambio por lo que esta arriba
             // tangent
             vector.x = mesh->mTangents[i].x;
             vector.y = mesh->mTangents[i].y;
@@ -216,6 +302,7 @@ private:
             vector.z = mesh->mBitangents[i].z;
             vertex.Bitangent = vector;
             vertices.push_back(vertex);
+			*/
         }
         // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
         for(unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -309,6 +396,34 @@ private:
                     break;
                 }
             }
+
+			if (!skip)
+			{
+				// if texture hasn't been loaded already, load it
+				// --- INICIO: CORRECCIÓN CRÍTICA DE PATH ---
+				string filename = string(str.C_Str());
+
+				// Encuentra la última barra (o barra invertida)
+				size_t lastSlash = filename.find_last_of("/\\");
+
+				// Si se encuentra una barra, extrae solo el nombre del archivo
+				if (lastSlash != string::npos)
+				{
+					filename = filename.substr(lastSlash + 1);
+				}
+				// --- FIN: CORRECCIÓN CRÍTICA DE PATH ---
+
+				Texture texture;
+				// Ahora pasamos solo el nombre del archivo, dejando que TextureFromFile use 'this->directory'
+				texture.id = TextureFromFile(filename.c_str(), this->directory); // ¡Aquí la clave!
+
+				texture.type = typeName;
+				texture.path = str.C_Str(); // Puedes dejar el path completo aquí para la caché
+				textures.push_back(texture);
+				textures_loaded.push_back(texture);
+			}
+			// ...
+			/*
             if(!skip)
             {   // if texture hasn't been loaded already, load it
                 Texture texture;
@@ -318,6 +433,7 @@ private:
                 textures.push_back(texture);
                 textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
             }
+			*/
         }
         return textures;
     }
@@ -514,6 +630,12 @@ private:
 
 	void boneTransform(double time_in_sec, vector<aiMatrix4x4>& transforms)
 	{
+		//Agregados para leer el museo Jumex si no detecta
+		if (scene->mNumAnimations == 0)
+		{
+			// Si no hay animaciones, sal inmediatamente. El modelo es estático.
+			return;
+		}
 		aiMatrix4x4 identity_matrix; // = mat4(1.0f);
 
 		double time_in_ticks = time_in_sec * ticks_per_second;
