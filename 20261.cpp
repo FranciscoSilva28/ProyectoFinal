@@ -72,22 +72,11 @@ rotX = 0.0f;
 //Texture
 //Lineas Agregadas para Texturas Elena
 unsigned int
-t_obra1,
-t_obra2,
-t_obra3,
-t_obra4,
-t_obra5,
-t_obra6,
-t_obra7,
-t_obra8,
-t_obra9,
-t_obra10,
-t_obra11,
-t_obra12,
-t_obra13,
-t_obra14,
-t_obra15,
-t_ladrillos;
+t_obra1, t_obra2, t_obra3, t_obra4, t_obra5, t_obra6, t_obra7, t_obra8, 
+t_obra9, t_obra10, t_obra11, t_obra12, t_obra13, t_obra14, t_obra15, t_obra16,
+t_obra17, t_obra18, t_obra19, t_obra20, t_obra21, t_obra22, t_obra23, t_obra24, 
+t_obra25, t_obra26, t_obra27, t_obra28, t_obra29, t_obra30, t_obra31, t_obra32, 
+t_obra33, t_obra34, t_obra35, t_obra36, t_ladrillos;
 
 
 //Lighting
@@ -223,23 +212,32 @@ unsigned int generateTextures(const char* filename, bool alfa, bool isPrimitive)
 //texturas de cuadros Elena
 void LoadTextures()
 {
+	t_obra1 = generateTextures("Texturas/obra1.jpg", 0, true); t_obra2 = generateTextures("Texturas/obra2.jpg", 0, true);
+	t_obra3 = generateTextures("Texturas/obra3.jpg", 0, true); t_obra4 = generateTextures("Texturas/obra4.jpg", 0, true);
+	t_obra5 = generateTextures("Texturas/obra5.jpg", 0, true); t_obra6 = generateTextures("Texturas/obra6.jpg", 0, true);
+	t_obra7 = generateTextures("Texturas/obra7.jpg", 0, true); t_obra8 = generateTextures("Texturas/obra8.jpg", 0, true);
+	t_obra9 = generateTextures("Texturas/obra9.jpg", 0, true); t_obra10 = generateTextures("Texturas/obra10.jpg", 0, true);
+	t_obra11 = generateTextures("Texturas/obra11.jpg", 0, true); t_obra12 = generateTextures("Texturas/obra12.jpg", 0, true);
+	t_obra13 = generateTextures("Texturas/obra13.jpg", 0, true); t_obra14 = generateTextures("Texturas/obra14.jpg", 0, true);
+	t_obra15 = generateTextures("Texturas/obra15.jpg", 0, true); 
+	//bicicleta
+	t_obra16 = generateTextures("Texturas/obra_bici1.jpg", 0, true); t_obra17 = generateTextures("Texturas/obra_bici2.jpg", 0, true);
+	t_obra18 = generateTextures("Texturas/obra_bici3.jpg", 0, true); t_obra19 = generateTextures("Texturas/obra_bici4.jpg", 0, true); 
+	t_obra20 = generateTextures("Texturas/obra_bici5.jpg", 0, true); 
 
-	t_obra1 = generateTextures("Texturas/obra1.jpg", 0, true);
-	t_obra2 = generateTextures("Texturas/obra2.jpg", 0, true);
-	t_obra3 = generateTextures("Texturas/obra3.jpg", 0, true);
-	t_obra4 = generateTextures("Texturas/obra4.jpg", 0, true);
-	t_obra5 = generateTextures("Texturas/obra5.jpg", 0, true);
-	t_obra6 = generateTextures("Texturas/obra6.jpg", 0, true);
-	t_obra7 = generateTextures("Texturas/obra7.jpg", 0, true);
-	t_obra8 = generateTextures("Texturas/obra8.jpg", 0, true);
-	t_obra9 = generateTextures("Texturas/obra9.jpg", 0, true);
-	t_obra10 = generateTextures("Texturas/obra10.jpg", 0, true);
-	t_obra11 = generateTextures("Texturas/obra11.jpg", 0, true);
-	t_obra12 = generateTextures("Texturas/obra12.jpg", 0, true);
-	t_obra13 = generateTextures("Texturas/obra13.jpg", 0, true);
-	t_obra14 = generateTextures("Texturas/obra14.jpg", 0, true);
-	t_obra15 = generateTextures("Texturas/obra15.jpg", 0, true);
-	t_ladrillos = generateTextures("Texturas/bricks.jpg", 0, true);
+	
+	//cefetera
+	t_obra21 = generateTextures("Texturas/obra_cafet1.jpg", 0, true); t_obra22 = generateTextures("Texturas/obra_cafet2.jpg", 0, true); 
+	t_obra23 = generateTextures("Texturas/obra_cafet3.jpg", 0, true); t_obra24 = generateTextures("Texturas/obra_cafet4.jpg", 0, true); 
+	t_obra25 = generateTextures("Texturas/obra_cafet5.jpg", 0, true); t_obra26 = generateTextures("Texturas/obra_cafet6.jpg", 0, true); 
+	t_obra27 = generateTextures("Texturas/obra_cafet7.jpg", 0, true); t_obra28 = generateTextures("Texturas/obra_cafet8.jpg", 0, true); 
+	t_obra29 = generateTextures("Texturas/obra_cafet9.jpg", 0, true); t_obra30 = generateTextures("Texturas/obra_cafet10.jpg", 0, true); 
+	//pajaro y gatos
+	t_obra31 = generateTextures("Texturas/obra_gato1.jpg", 0, true); t_obra32 = generateTextures("Texturas/obra_gato2.jpg", 0, true); 
+	t_obra33 = generateTextures("Texturas/obra_gato3.jpg", 0, true); t_obra34 = generateTextures("Texturas/obra_gato4.jpg", 0, true); 
+	t_obra35 = generateTextures("Texturas/obra_gato5.jpg", 0, true); t_obra36 = generateTextures("Texturas/obra_gato6.jpg", 0, true);
+
+	t_ladrillos = generateTextures("Texturas/bricks.jpg", 0, true);  
 
 }
 
@@ -509,21 +507,24 @@ int main() {
 
 	// Definición de los cuadros a mostrar en la escena Elena
 	Cuadro cuadros[] = {
-		{ glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(6.5f), 45.0f, t_obra1 },
-		{ glm::vec3(5.0f, 10.0f, 0.0f), glm::vec3(6.5f), 0.0f, t_obra2 },
-		{ glm::vec3(-5.0f, 10.0f, 0.0f), glm::vec3(4.5f), -30.0f ,t_obra3 },
-		{ glm::vec3(15.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra4 },
-		{ glm::vec3(-15.f, 10.0f, 0.0f), glm::vec3(8.5f), 0.0f, t_obra5},
-		{glm::vec3(25.f, 10.0f, 0.0f), glm::vec3(8.5f), 0.0f, t_obra6},
-		{glm::vec3(-25.f, 10.0f, 0.0f),  glm::vec3(1.5f),0.0f,  t_obra7},
-		{glm::vec3(35.f, 10.0f, 0.0f),  glm::vec3(1.5f), 0.0f, t_obra8},
-		{glm::vec3(-35.f, 10.0f, 0.0f),  glm::vec3(3.5f),0.0f,  t_obra9},
-		{glm::vec3(45.f, 10.0f, 0.0f),  glm::vec3(3.5f), 0.0f, t_obra10},
-		{glm::vec3(-45.f, 10.0f, 0.0f), glm::vec3(2.5f),0.0f,  t_obra11},
-		{glm::vec3(55.f, 10.0f, 0.0f),  glm::vec3(2.5f), 0.0f, t_obra12},
-		{glm::vec3(-55.f, 10.0f, 0.0f), glm::vec3(9.5f),0.0f,  t_obra13},
-		{glm::vec3(65.f, 10.0f, 0.0f), glm::vec3(9.5f), 0.0f, t_obra14},
-		{glm::vec3(-65.f, 10.0f, 0.0f),glm::vec3(1.5f),0.0f,  t_obra15}
+		{glm::vec3(0.0f, 10.0f,  0.0f), glm::vec3(6.5f),45.0f, t_obra1 }, {glm::vec3(5.0f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra2 },
+		{glm::vec3(-5.0f, 10.0f, 0.0f), glm::vec3(4.5f),-30.0f,t_obra3 }, {glm::vec3(15.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra4 },
+		{glm::vec3(-15.f, 10.0f, 0.0f), glm::vec3(8.5f), 0.0f, t_obra5},  {glm::vec3(25.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra6},
+		{glm::vec3(-25.f, 10.0f, 0.0f), glm::vec3(1.5f),0.0f,  t_obra7},  {glm::vec3(35.f, 10.0f, 0.0f),  glm::vec3(4.5f), 0.0f, t_obra8},
+		{glm::vec3(-35.f, 10.0f, 0.0f), glm::vec3(3.5f),0.0f,  t_obra9},  {glm::vec3(45.f, 10.0f, 0.0f),  glm::vec3(4.5f), 0.0f, t_obra10},
+		{glm::vec3(-45.f, 10.0f, 0.0f), glm::vec3(2.5f),0.0f,  t_obra11}, {glm::vec3(55.f, 10.0f, 0.0f),  glm::vec3(4.5f), 0.0f, t_obra12},
+		{glm::vec3(-55.f, 10.0f, 0.0f), glm::vec3(9.5f),0.0f,  t_obra13}, {glm::vec3(65.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra14},
+		{glm::vec3(-65.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra15}, {glm::vec3(75.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra16},
+		{glm::vec3(-75.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra17}, {glm::vec3(85.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra18},
+		{glm::vec3(-85.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra19}, {glm::vec3(95.f, 10.0f, -20.0f), glm::vec3(4.5f), 0.0f, t_obra20},
+		{glm::vec3(-95.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra21}, {glm::vec3(105.f, 10.0f, 10.0f), glm::vec3(4.5f), 0.0f, t_obra22},
+		{glm::vec3(-105.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra23}, {glm::vec3(115.f, 10.0f, 10.0f), glm::vec3(4.5f), 0.0f, t_obra24},
+		{glm::vec3(-115.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra25}, {glm::vec3(125.f, 10.0f, 10.0f), glm::vec3(4.5f), 0.0f, t_obra26},
+		{glm::vec3(-125.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra27}, {glm::vec3(135.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra28},
+		{glm::vec3(-135.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra29}, {glm::vec3(145.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra30},
+		{glm::vec3(-145.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra31}, {glm::vec3(155.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra32},
+		{glm::vec3(-155.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra33}, {glm::vec3(165.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra34},
+		{glm::vec3(-165.f, 10.0f, 0.0f), glm::vec3(4.5f),0.0f,  t_obra35}, {glm::vec3(175.f, 10.0f, 0.0f), glm::vec3(4.5f), 0.0f, t_obra36},
 
 	};
 
@@ -850,8 +851,8 @@ void my_input(GLFWwindow* window, int key, int scancode, int action, int mode)
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
 		lightPosition.x--;
 
-	//Car animation
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	//Elena RATON 
+	if (key == GLFW_KEY_9 && action == GLFW_PRESS)
 		animacion ^= true;
 
 	//To play KeyFrame animation 
