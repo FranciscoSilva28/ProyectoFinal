@@ -1,7 +1,10 @@
 /*---------------------------------------------------------*/
 /* ----------------   Proyecto Final  --------------------------*/
 /*-----------------    2026-1   ---------------------------*/
-/*------------- Alumno:                     ---------------*/
+/*------------- Alumno:	Arellanes Conde Esteban
+						Cervantes Valencia María Fernanda
+						Rufino López María Elena
+						Silva Castro Francisco Javier---------------*/
 /*------------- No. Cuenta                  ---------------*/
 
 #include <Windows.h>
